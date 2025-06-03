@@ -29,7 +29,7 @@
   <Actions Context="Author">
     <Exec>
       <Command>powershell</Command>
-      <Arguments>"C:\Apps\backup\app.backup.wsb.mail.ps1" -Type 'success'</Arguments>
+      <Arguments>"C:\Apps\backup\app_backup_wsb_mail.ps1" -Type 'success'</Arguments>
     </Exec>
   </Actions>
 </Task>
