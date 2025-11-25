@@ -5,7 +5,7 @@
 .AUTHOREMAIL  mail@kai.kim
 .TAGS         windows server backup mail
 .LICENSEURI   https://choosealicense.com/licenses/mit/
-.PROJECTURI   https://lib.onl/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
+.PROJECTURI   https://libsys.ru/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
 #>
 
 <#
@@ -23,7 +23,7 @@ The messages contain the host ID and notification type.
 .\app.backup.wsb.mail.ps1 -Type 'success' [-SSL]
 
 .LINK
-https://lib.onl/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
+https://libsys.ru/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
 #>
 
 # -------------------------------------------------------------------------------------------------------------------- #
