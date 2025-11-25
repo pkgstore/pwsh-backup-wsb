@@ -17,10 +17,10 @@ The script sends messages to the specified address for further analysis.
 The messages contain the host ID and notification type.
 
 .EXAMPLE
-.\app_backup_wsb_mail.ps1 -Type 'error' [-SSL]
+.\app.backup.wsb.mail.ps1 -Type 'error' [-SSL]
 
 .EXAMPLE
-.\app_backup_wsb_mail.ps1 -Type 'success' [-SSL]
+.\app.backup.wsb.mail.ps1 -Type 'success' [-SSL]
 
 .LINK
 https://lib.onl/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
@@ -45,63 +45,7 @@ $UUID = (Get-CimInstance 'Win32_ComputerSystemProduct' | Select-Object -ExpandPr
 $HID = ((${Hostname} + ':' + ${UUID}).ToUpper())
 
 # -------------------------------------------------------------------------------------------------------------------- #
-# INITIALIZATION
-# -------------------------------------------------------------------------------------------------------------------- #
-
-function Start-Script() {
-  switch ("${Type}") {
-    'error'   { Send-BackupError }
-    'success' { Send-BackupSuccess }
-    default   { exit }
-  }
-}
-
-# -------------------------------------------------------------------------------------------------------------------- #
-# BACKUP: ERROR
-# Sending an email after a failed backup.
-# -------------------------------------------------------------------------------------------------------------------- #
-
-function Send-BackupError() {
-  $Subject = "Windows Server Backup: ${Hostname}"
-  $Body = @"
-Windows Server Backup failed: ${Hostname}.
-Please check server backup!
-
-Host: ${Hostname}
-Status: ERROR
-
--- 
-#ID:${HID}
-#TYPE:BACKUP:ERROR
-"@
-
-  Start-Smtp -S "${Subject}" -B "${Body}"
-}
-
-# -------------------------------------------------------------------------------------------------------------------- #
-# BACKUP: SUCCESS
-# Sending an email after a successful backup.
-# -------------------------------------------------------------------------------------------------------------------- #
-
-function Send-BackupSuccess() {
-  $Subject = "Windows Server Backup: ${Hostname}"
-  $Body = @"
-Windows Server Backup completed successfully!
-
-Host: ${Hostname}
-Status: SUCCESS
-
--- 
-#ID:${HID}
-#TYPE:BACKUP:SUCCESS
-"@
-
-  Start-Smtp -S "${Subject}" -B "${Body}"
-}
-
-# -------------------------------------------------------------------------------------------------------------------- #
-# SMTP
-# SMTP configuration.
+# -----------------------------------------------------< SCRIPT >----------------------------------------------------- #
 # -------------------------------------------------------------------------------------------------------------------- #
 
 function Start-Smtp {
@@ -116,8 +60,43 @@ function Start-Smtp {
   $SmtpClient.Send("$($P.From)", "$($P.To)", "${Subject}", "${Body}")
 }
 
-# -------------------------------------------------------------------------------------------------------------------- #
-# -------------------------------------------------< RUNNING SCRIPT >------------------------------------------------- #
-# -------------------------------------------------------------------------------------------------------------------- #
+function Send-BackupError() {
+  $Subject = "Windows Server Backup: ${Hostname}"
+  $Body = @"
+Windows Server Backup failed: ${Hostname}.
+Please check server backup!
 
-Start-Script
+Host: ${Hostname}
+Status: ERROR
+
+--
+#ID:${HID}
+#TYPE:BACKUP:ERROR
+"@
+
+  Start-Smtp -S "${Subject}" -B "${Body}"
+}
+
+function Send-BackupSuccess() {
+  $Subject = "Windows Server Backup: ${Hostname}"
+  $Body = @"
+Windows Server Backup completed successfully!
+
+Host: ${Hostname}
+Status: SUCCESS
+
+--
+#ID:${HID}
+#TYPE:BACKUP:SUCCESS
+"@
+
+  Start-Smtp -S "${Subject}" -B "${Body}"
+}
+
+function Start-Script() {
+  switch ("${Type}") {
+    'error'   { Send-BackupError }
+    'success' { Send-BackupSuccess }
+    default   { exit }
+  }
+}; Start-Script
