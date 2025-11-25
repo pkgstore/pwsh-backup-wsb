@@ -69,7 +69,7 @@ Please check server backup!
 Host: ${Hostname}
 Status: ERROR
 
---
+-- 
 #ID:${HID}
 #TYPE:BACKUP:ERROR
 "@
@@ -85,7 +85,7 @@ Windows Server Backup completed successfully!
 Host: ${Hostname}
 Status: SUCCESS
 
---
+-- 
 #ID:${HID}
 #TYPE:BACKUP:SUCCESS
 "@
