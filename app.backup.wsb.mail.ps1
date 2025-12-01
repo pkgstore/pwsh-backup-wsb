@@ -65,6 +65,7 @@ param(
   [Alias('P')]
   [string]$Priority = 'Normal',
 
+  [switch]$HTML,
   [switch]$SSL,
   [switch]$BypassCertValid
 )
@@ -81,31 +82,46 @@ $NL = [Environment]::NewLine
 # -----------------------------------------------------< SCRIPT >----------------------------------------------------- #
 # -------------------------------------------------------------------------------------------------------------------- #
 
-function Write-BackupError() {
-  $Body = @"
-Windows Server Backup failed: ${Hostname}.
-Please check server backup!
+function Write-Sign {
+  $Sign = switch ( $true ) {
+    $HTML {
+      "<br><br>-- <ul>" +
+      "<li><pre><code>#ID:${HID}</code></pre></li>" +
+      "<li><pre><code>#DATE:${DATE}</code></pre></li>" +
+      "</ul>"
+    }
+    default {
+      "${NL}${NL}-- " +
+      "${NL}#ID:${HID}" +
+      "${NL}#DATE:${DATE}"
+    }
+  }
 
-Host: ${Hostname}
-Status: ERROR
-
---
-#ID:${HID}
-#TYPE:BACKUP:ERROR
-"@
+  return $Sign
 }
 
-function Write-BackupSuccess() {
-  $Body = @"
-Windows Server Backup completed successfully!
+function Write-Body() {
+  $Body = switch ($Type) {
+    'error'   { "Windows Server Backup failed: ${Hostname}. Please check server backup!" }
+    default   { "Windows Server Backup completed successfully!" }
+  }
 
-Host: ${Hostname}
-Status: SUCCESS
+  return $Body
+}
 
---
-#ID:${HID}
-#TYPE:BACKUP:SUCCESS
-"@
+function Write-Mail {
+  $Mail = (New-Object System.Net.Mail.MailMessage)
+  $Mail.Subject = $Subject
+  $Mail.Body = $(Write-Body) + $(Write-Sign)
+  $Mail.From = $From
+  $Mail.Priority = $Priority
+  $Mail.IsBodyHtml = $HTML
+
+  $To.ForEach({ $Mail.To.Add($_) })
+  $Cc.ForEach({ $Mail.CC.Add($_) })
+  $Bcc.ForEach({ $Mail.BCC.Add($_) })
+
+  return $Mail
 }
 
 function Start-Smtp {
@@ -113,13 +129,11 @@ function Start-Smtp {
   $SmtpClient = (New-Object Net.Mail.SmtpClient($P.Server, $P.Port))
   $SmtpClient.EnableSsl = $SSL
   $SmtpClient.Credentials = (New-Object System.Net.NetworkCredential($P.User, $P.Password))
-  $SmtpClient.Send()
+  $SmtpClient.Send($(Write-Mail))
 }
 
 function Start-Script() {
-  switch ($Type) {
-    'error'   { Send-BackupError }
-    'success' { Send-BackupSuccess }
-    default   { exit }
-  }
+  Start-Transcript -Path "${LOG}"
+  Start-Smtp
+  Stop-Transcript
 }; Start-Script
