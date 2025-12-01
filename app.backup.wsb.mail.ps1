@@ -39,8 +39,8 @@ param(
   [Alias('Host')][string]$Hostname = ([System.Net.Dns]::GetHostByName([string]'localhost').HostName)
 )
 
-$S = ((Get-Item "${PSCommandPath}").Basename + '.ini')
-$P = (Get-Content -Path "${PSScriptRoot}\${S}" | ConvertFrom-StringData)
+$CFG = ((Get-Item "${PSCommandPath}").Basename + '.ini')
+$P = (Get-Content -Path "${PSScriptRoot}\${CFG}" | ConvertFrom-StringData)
 $UUID = (Get-CimInstance 'Win32_ComputerSystemProduct' | Select-Object -ExpandProperty 'UUID')
 $HID = ((${Hostname} + ':' + ${UUID}).ToUpper())
 
