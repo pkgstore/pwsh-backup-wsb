@@ -65,7 +65,6 @@ param(
   [Alias('P')]
   [string]$Priority = 'Normal',
 
-  [switch]$HTML,
   [switch]$SSL,
   [switch]$BypassCertValid
 )
@@ -85,15 +84,10 @@ $NL = [Environment]::NewLine
 function Write-Sign {
   $Sign = switch ( $true ) {
     $HTML {
-      "<br><br>-- <ul>" +
-      "<li><pre><code>#ID:${HID}</code></pre></li>" +
-      "<li><pre><code>#DATE:${DATE}</code></pre></li>" +
-      "</ul>"
+      "<br><br>-- <ul><li><pre><code>#ID:${HID}</code></pre></li><li><pre><code>#DATE:${DATE}</code></pre></li></ul>"
     }
     default {
-      "${NL}${NL}-- " +
-      "${NL}#ID:${HID}" +
-      "${NL}#DATE:${DATE}"
+      "${NL}${NL}-- ${NL}#ID:${HID}${NL}#DATE:${DATE}"
     }
   }
 
@@ -102,8 +96,12 @@ function Write-Sign {
 
 function Write-Body() {
   $Body = switch ($Type) {
-    'error'   { "Windows Server Backup failed: ${Hostname}. Please check server backup!" }
-    default   { "Windows Server Backup completed successfully!" }
+    'error' {
+      "Windows Server Backup failed: ${Hostname}. Please check server backup!"
+    }
+    default {
+      "Windows Server Backup completed successfully!"
+    }
   }
 
   return $Body
@@ -112,7 +110,7 @@ function Write-Body() {
 function Write-Mail {
   $Mail = (New-Object System.Net.Mail.MailMessage)
   $Mail.Subject = $Subject
-  $Mail.Body = $(Write-Body) + $(Write-Sign)
+  $Mail.Body = (-join ("$(Write-Body)", "$(Write-Sign)"))
   $Mail.From = $From
   $Mail.Priority = $Priority
   $Mail.IsBodyHtml = $HTML
