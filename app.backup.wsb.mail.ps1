@@ -36,11 +36,6 @@ param(
   [Alias('H', 'Host')]
   [string]$Hostname = ([System.Net.Dns]::GetHostEntry($env:ComputerName).HostName),
 
-  [ValidateSet('error', 'success')]
-  [Alias('T')]
-  [string]$Type,
-
-  [Parameter(Mandatory)]
   [Alias('S', 'Subj')]
   [string]$Subject = "Windows Server Backup: ${Hostname}",
 
@@ -64,6 +59,10 @@ param(
   [ValidateSet('Low', 'Normal', 'High')]
   [Alias('P')]
   [string]$Priority = 'Normal',
+
+  [ValidateSet('error')]
+  [Alias('T')]
+  [string]$Type,
 
   [switch]$SSL,
   [switch]$BypassCertValid
