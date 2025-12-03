@@ -48,7 +48,7 @@ param(
 
 $CFG = ((Get-Item "${PSCommandPath}").Basename + '.ini')
 $P = (Get-Content -Path "${PSScriptRoot}\${CFG}" | ConvertFrom-StringData)
-$LOG = "${PSScriptRoot}\log.mail.txt"
+$LOG = "${PSScriptRoot}\log.backup.wsb.mail.txt"
 $UUID = (Get-CimInstance 'Win32_ComputerSystemProduct' | Select-Object -ExpandProperty 'UUID')
 $HID = (-join ($Hostname, ':', $UUID).ToUpper())
 $IP = ([System.Net.DNS]::GetHostAddresses([System.Environment]::MachineName)
