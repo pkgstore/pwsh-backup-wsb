@@ -43,7 +43,7 @@ param(
   [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$Cc,
   [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$Bcc,
   [ValidateSet('Low', 'Normal', 'High')][string]$Priority = 'Normal',
-  [ValidateSet('error')][string]$Type,
+  [ValidateSet('error', 'success')][string]$Type = 'success',
   [switch]$HTML,
   [switch]$SSL,
   [switch]$BypassCertValid
@@ -71,6 +71,7 @@ function Write-Sign {
         "<li><pre><code>#ID:${HID}</code></pre></li>",
         "<li><pre><code>#IP:${IP}</code></pre></li>",
         "<li><pre><code>#DATE:${DATE}</code></pre></li>",
+        "<li><pre><code>#TYPE:BACKUP:$($Type.ToUpper())</code></pre></li>",
         '</ul>'
       )
     }
@@ -79,7 +80,8 @@ function Write-Sign {
         "${NL}${NL}-- ",
         "${NL}#ID:${HID}",
         "${NL}#IP:${IP}",
-        "${NL}#DATE:${DATE}"
+        "${NL}#DATE:${DATE}",
+        "${NL}#TYPE:BACKUP:$($Type.ToUpper())"
       )
     }
   }
