@@ -107,7 +107,11 @@ function Write-Body() {
       }
     }
     default {
-      'Windows Server Backup completed successfully!'
+      if ($HTML) {
+        '<p>Windows Server Backup completed successfully!</p>'
+      } else {
+        'Windows Server Backup completed successfully!'
+      }
     }
   }
 
