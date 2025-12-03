@@ -33,37 +33,15 @@ https://libsys.ru/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
 # -------------------------------------------------------------------------------------------------------------------- #
 
 param(
-  [Alias('H', 'Host')]
-  [string]$Hostname = ([System.Net.Dns]::GetHostEntry($env:ComputerName).HostName),
-
-  [Alias('S', 'Subj')]
+  [string]$Hostname = ([System.Net.Dns]::GetHostEntry([System.Environment]::MachineName).HostName),
   [string]$Subject = "Windows Server Backup: ${Hostname}",
-
-  [Parameter(Mandatory)]
-  [Alias('F')]
-  [string]$From,
-
-  [Parameter(Mandatory)]
-  [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')]
-  [Alias('T')]
-  [string[]]$To,
-
-  [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')]
-  [Alias('C', 'Copy')]
-  [string[]]$Cc,
-
-  [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')]
-  [Alias('BC', 'HideCopy')]
-  [string[]]$Bcc,
-
-  [ValidateSet('Low', 'Normal', 'High')]
-  [Alias('P')]
-  [string]$Priority = 'Normal',
-
-  [ValidateSet('error')]
-  [Alias('T')]
-  [string]$Type,
-
+  [Parameter(Mandatory)][string]$From,
+  [Parameter(Mandatory)][ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$To,
+  [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$Cc,
+  [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$Bcc,
+  [ValidateSet('Low', 'Normal', 'High')][string]$Priority = 'Normal',
+  [ValidateSet('error')][string]$Type,
+  [switch]$HTML,
   [switch]$SSL,
   [switch]$BypassCertValid
 )
@@ -72,7 +50,9 @@ $CFG = ((Get-Item "${PSCommandPath}").Basename + '.ini')
 $P = (Get-Content -Path "${PSScriptRoot}\${CFG}" | ConvertFrom-StringData)
 $LOG = "${PSScriptRoot}\log.mail.txt"
 $UUID = (Get-CimInstance 'Win32_ComputerSystemProduct' | Select-Object -ExpandProperty 'UUID')
-$HID = ((${Hostname} + ':' + ${UUID}).ToUpper())
+$HID = (-join ($Hostname, ':', $UUID).ToUpper())
+$IP = ([System.Net.DNS]::GetHostAddresses([System.Environment]::MachineName)
+  | Where-Object { $_.AddressFamily -eq 'InterNetwork' })[0].ToString()
 $DATE = (Get-Date -Format 'yyyy-MM-ddTHH:mm:ssK')
 $NL = [Environment]::NewLine
 
@@ -83,10 +63,21 @@ $NL = [Environment]::NewLine
 function Write-Sign {
   $Sign = switch ( $true ) {
     $HTML {
-      "<br><br>-- <ul><li><pre><code>#ID:${HID}</code></pre></li><li><pre><code>#DATE:${DATE}</code></pre></li></ul>"
+      -join (
+        '<br><br>-- <ul>',
+        "<li><pre><code>#ID:${HID}</code></pre></li>",
+        "<li><pre><code>#IP:${IP}</code></pre></li>",
+        "<li><pre><code>#DATE:${DATE}</code></pre></li>",
+        '</ul>'
+      )
     }
     default {
-      "${NL}${NL}-- ${NL}#ID:${HID}${NL}#DATE:${DATE}"
+      -join (
+        "${NL}${NL}-- ",
+        "${NL}#ID:${HID}",
+        "${NL}#IP:${IP}",
+        "${NL}#DATE:${DATE}"
+      )
     }
   }
 
@@ -96,10 +87,24 @@ function Write-Sign {
 function Write-Body() {
   $Body = switch ($Type) {
     'error' {
-      "Windows Server Backup failed: ${Hostname}. Please check server backup!"
+      if ($HTML) {
+        -join (
+          '<p>Windows Server Backup failed! Please check server backup!</p>',
+          '<ul>',
+          "<li>Host: <code>${Hostname}</code></li>",
+          "<li>IP: <code>${IP}</code></li>",
+          '</ul>'
+        )
+      } else {
+        -join (
+          'Windows Server Backup failed! Please check server backup!',
+          "${NL}Host: ${Hostname}",
+          "${NL}IP: ${IP}"
+        )
+      }
     }
     default {
-      "Windows Server Backup completed successfully!"
+      'Windows Server Backup completed successfully!'
     }
   }
 
@@ -109,7 +114,7 @@ function Write-Body() {
 function Write-Mail {
   $Mail = (New-Object System.Net.Mail.MailMessage)
   $Mail.Subject = $Subject
-  $Mail.Body = (-join ("$(Write-Body)", "$(Write-Sign)"))
+  $Mail.Body = (-join ($(Write-Body), $(Write-Sign)))
   $Mail.From = $From
   $Mail.Priority = $Priority
   $Mail.IsBodyHtml = $HTML
