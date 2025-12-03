@@ -19,10 +19,13 @@ The script sends messages to the specified address for further analysis.
 The messages contain the host ID and notification type.
 
 .EXAMPLE
-.\app.backup.wsb.mail.ps1 -Type 'error' [-SSL]
+.\app.backup.wsb.mail.ps1 -From 'mail@example.com' -To 'mail@example.org'
 
 .EXAMPLE
-.\app.backup.wsb.mail.ps1 -Type 'success' [-SSL]
+.\app.backup.wsb.mail.ps1 -Subject 'Backup Status' -From 'mail@example.com' -To 'mail@example.org'
+
+.EXAMPLE
+.\app.backup.wsb.mail.ps1 -From 'mail@example.com' -To 'mail@example.org' -Priority 'High' -Type 'error'
 
 .LINK
 https://libsys.ru/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
@@ -34,7 +37,7 @@ https://libsys.ru/ru/2024/09/40539e36-4656-5532-b920-8975c97d4dc5/
 
 param(
   [string]$Hostname = ([System.Net.Dns]::GetHostEntry([System.Environment]::MachineName).HostName),
-  [string]$Subject = "Windows Server Backup: ${Hostname}",
+  [string]$Subject = "$($Hostname.ToUpper()): Windows Server Backup",
   [Parameter(Mandatory)][string]$From,
   [Parameter(Mandatory)][ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$To,
   [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$Cc,
