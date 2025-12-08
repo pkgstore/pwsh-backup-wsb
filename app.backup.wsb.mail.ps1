@@ -43,7 +43,7 @@ param(
   [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$Cc,
   [ValidatePattern('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{1,}$')][string[]]$Bcc,
   [ValidateSet('Low', 'Normal', 'High')][string]$Priority = 'Normal',
-  [ValidateSet('error', 'success')][string]$Type = 'success',
+  [ValidateSet('Error', 'Success')][string]$Type = 'success',
   [switch]$HTML,
   [switch]$SSL,
   [switch]$BypassCertValid
@@ -91,7 +91,7 @@ function Write-Sign {
 
 function Write-Body() {
   $Body = switch ($Type) {
-    'error' {
+    'Error' {
       if ($HTML) {
         -join (
           '<p>Windows Server Backup failed! Please check server backup!</p>',
