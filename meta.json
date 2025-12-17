@@ -1,0 +1,24 @@
+{
+  "name": "Backup",
+  "description": "",
+  "install": {
+    "file": [
+      {
+        "name": "app.backup.wsb.mail.ini",
+        "path": "C:\\Apps\\Backup"
+      },
+      {
+        "name": "app.backup.wsb.mail.ps1",
+        "path": "C:\\Apps\\Backup"
+      },
+      {
+        "name": "task.backup.wsb.mail.error.xml",
+        "path": "C:\\Apps\\Backup"
+      },
+      {
+        "name": "task.backup.wsb.mail.success.xml",
+        "path": "C:\\Apps\\Backup"
+      }
+    ]
+  }
+}
