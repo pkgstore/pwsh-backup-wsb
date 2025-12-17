@@ -11,11 +11,11 @@
   </Triggers>
   <Settings>
     <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
-    <DisallowStartIfOnBatteries>true</DisallowStartIfOnBatteries>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
     <StopIfGoingOnBatteries>true</StopIfGoingOnBatteries>
     <AllowHardTerminate>true</AllowHardTerminate>
     <StartWhenAvailable>false</StartWhenAvailable>
-    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
     <IdleSettings>
       <StopOnIdleEnd>true</StopOnIdleEnd>
       <RestartOnIdle>false</RestartOnIdle>
@@ -28,8 +28,8 @@
   </Settings>
   <Actions Context="Author">
     <Exec>
-      <Command>powershell</Command>
-      <Arguments>"C:\Apps\Backup\app.backup.wsb.mail.ps1" -Type 'Success'</Arguments>
+      <Command>pwsh.exe</Command>
+      <Arguments>-NoProfile -WindowStyle "Hidden" -ExecutionPolicy "Bypass" -File "C:\Apps\Backup\app.backup.wsb.mail.ps1" -Type "Success"</Arguments>
     </Exec>
   </Actions>
 </Task>
