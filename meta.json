@@ -1,6 +1,6 @@
 {
   "name": "Backup",
-  "description": "",
+  "description": "Script for sending messages about backup status.",
   "install": {
     "file": [
       {
@@ -12,11 +12,11 @@
         "path": "C:\\Apps\\Backup"
       },
       {
-        "name": "task.backup.wsb.mail.error.xml",
+        "name": "job.backup.wsb.mail.error.xml",
         "path": "C:\\Apps\\Backup"
       },
       {
-        "name": "task.backup.wsb.mail.success.xml",
+        "name": "job.backup.wsb.mail.success.xml",
         "path": "C:\\Apps\\Backup"
       }
     ]
